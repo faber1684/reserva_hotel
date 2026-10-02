@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reserva de Habitaciones - ASEP Puerto Guzmán</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #059669; 
+            --primary-hover: #047857;
+            --primary-light: #d1fae5;
+            --surface: rgba(255, 255, 255, 0.95);
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+            --bg-color: #f0fdf4;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, #dcfce7 0px, transparent 50%),
+                radial-gradient(at 100% 0%, #e0f2fe 0px, transparent 50%),
+                radial-gradient(at 100% 100%, #fef3c7 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .institucional-header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .badge-asep {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--primary-light);
+            color: var(--primary-hover);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: 0 2px 10px rgba(5, 150, 105, 0.1);
+        }
+
+        .badge-asep svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+
+        .form-container {
+            background: var(--surface);
+            backdrop-filter: blur(10px);
+            padding: 40px 35px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 480px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        h2 { 
+            margin: 0 0 25px 0; 
+            color: #0f172a; 
+            text-align: center; 
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .form-group { 
+            margin-bottom: 22px; 
+        }
+
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 600; 
+            font-size: 0.9rem;
+            color: #334155; 
+        }
+
+        select, input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            box-sizing: border-box;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: var(--text-main);
+            transition: all 0.3s ease;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.15);
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 15px;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+            transition: all 0.3s ease;
+        }
+
+        button:hover:not(:disabled) { 
+            box-shadow: 0 6px 16px rgba(5, 150, 105, 0.35);
+            transform: translateY(-2px);
+        }
+        
+        button:active:not(:disabled) {
+            transform: translateY(1px); 
+        }
+
+        button:disabled { 
+            background: #cbd5e1; 
+            box-shadow: none;
+            cursor: not-allowed; 
+            color: #94a3b8;
+        }
+
+        .hidden { display: none !important; }
+
+        #mensaje { 
+            margin-top: 20px; 
+            text-align: center; 
+            font-size: 0.95rem;
+            font-weight: 600; 
+            padding: 14px; 
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .success { 
+            color: #065f46; 
+            background-color: #d1fae5; 
+            border: 1px solid #a7f3d0;
+        }
+
+        .error { 
+            color: #991b1b; 
+            background-color: #fee2e2; 
+            border: 1px solid #fecaca;
+        }
+        
+        .warning {
+            color: #9a3412;
+            background-color: #ffedd5;
+            border: 1px solid #fdba74;
+        }
+
+        .ayuda { 
+            font-size: 0.8rem; 
+            color: var(--text-muted); 
+            margin-top: 8px; 
+            display: flex; 
+            align-items: center;
+            gap: 4px;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="institucional-header">
+    <div class="badge-asep">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 4H7C5.89543 4 5 4.89543 5 6V20C5 21.1046 5.89543 22 7 22H21C21.5523 22 22 21.5523 22 21V5C22 4.44772 21.5523 4 21 4ZM19 20H7C6.44772 20 6 19.5523 6 19V6C6 5.44772 6.44772 5 7 5H19V20Z"/>
+            <path d="M9 7H17V9H9V7Z"/>
+            <path d="M9 11H17V13H9V11Z"/>
+            <path d="M9 15H13V17H9V15Z"/>
+        </svg>
+        SUBDIRECTIVA ASEP PUERTO GUZMÁN
+    </div>
+</div>
+
+<div class="form-container">
+    <h2>Reserva de Habitaciones</h2>
+    <form id="reservaForm">
+        <div class="form-group">
+            <label for="tipoHabitacion">Tipo de Habitación</label>
+            <select id="tipoHabitacion" name="tipoHabitacion" required>
+                <option value="">Seleccione una opción...</option>
+                <option value="1 Cama (Matrimonial)">1 Cama (Matrimonial - 2 personas)</option>
+                <option value="2 Camas">2 Camas (2 personas)</option>
+                <option value="3 Camas">3 Camas (3 personas)</option>
+                <option value="4 Camas">4 Camas (4 personas)</option>
+            </select>
+        </div>
+
+        <div id="huespedesContainer"></div>
+
+        <button type="submit" id="btnSubmit" class="hidden">Confirmar Reserva</button>
+    </form>
+    <div id="mensaje"></div>
+</div>
+
+<script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxUIU9_68I9Yl01rsHBLfheqq_ld7CnHZ5u2cBSesCSpbpMdCtxJKbjkJgpsaRIQzUmhw/exec'; 
+
+    // Lista exacta de 42 personas ordenada alfabéticamente de la A a la Z
+    const deportistas = [
+        {"num(orden)": 1, "nombres y apellidos": "ADRIANA MABEL DIAZ GOMEZ", "número de documento": "1026146067"},
+        {"num(orden)": 2, "nombres y apellidos": "ALEXANDER BUILES", "número de documento": "18188230"},
+        {"num(orden)": 3, "nombres y apellidos": "ALEXANDER QUIÑONES ORTEGA", "número de documento": "87061164"},
+        {"num(orden)": 4, "nombres y apellidos": "ANA LUZ MUÑOZ MAMIAN", "número de documento": "36284389"},
+        {"num(orden)": 5, "nombres y apellidos": "ANDREA MARTINEZ MARTINEZ", "número de documento": "1125183915"},
+        {"num(orden)": 6, "nombres y apellidos": "CARLOS ENRRIQUE HIDALGO", "número de documento": "18125839"},
+        {"num(orden)": 7, "nombres y apellidos": "CARLOS JOHAN PAZ DUARTE", "número de documento": "1124856818"},
+        {"num(orden)": 8, "nombres y apellidos": "CARLOS MARIO VARGAS PINZON", "número de documento": "1123314501"},
+        {"num(orden)": 9, "nombres y apellidos": "CARMEN ALICIA BURBANO", "número de documento": "41180803"},
+        {"num(orden)": 10, "nombres y apellidos": "CLARA INES ADARVE CABEZAS", "número de documento": "69005281"},
+        {"num(orden)": 11, "nombres y apellidos": "CLAUDIA MARCELA DIAZ PAZ", "número de documento": "1122782786"},
+        {"num(orden)": 12, "nombres y apellidos": "DARWIN YESID QUESADA", "número de documento": "1004159501"},
+        {"num(orden)": 13, "nombres y apellidos": "DIANA CATHERINE LLANTEN GUZMAN", "número de documento": "1061769802"},
+        {"num(orden)": 14, "nombres y apellidos": "DORIS RODRIGUEZ MATABANCHOY", "número de documento": "41182060"},
+        {"num(orden)": 15, "nombres y apellidos": "DUBER FERNEY ZAMORA", "número de documento": "1124850689"},
+        {"num(orden)": 16, "nombres y apellidos": "ELSO ROVIRO GOMEZ", "número de documento": "4765052"},
+        {"num(orden)": 17, "nombres y apellidos": "ESNEIDER SILVA COLLAZOS", "número de documento": "1117263778"},
+        {"num(orden)": 18, "nombres y apellidos": "FABER HUACA DIAZ", "número de documento": "18130518"},
+        {"num(orden)": 19, "nombres y apellidos": "HENRY AMADO ROJAS PASINGA", "número de documento": "18101485"},
+        {"num(orden)": 20, "nombres y apellidos": "JAIME ALBERTO CARVAJAL", "número de documento": "1061789389"},
+        {"num(orden)": 21, "nombres y apellidos": "JAIRO MATIAS CORTEZ DELGADO", "número de documento": "97425555"},
+        {"num(orden)": 22, "nombres y apellidos": "JOSE LUIS JUAGINOY JAMANOY", "número de documento": "18112071"},
+        {"num(orden)": 23, "nombres y apellidos": "JUAN PABLO BRAVO DESCANSE", "número de documento": "97472241"},
+        {"num(orden)": 24, "nombres y apellidos": "JUAN SEBASTIAN CASTRO NARANJO", "número de documento": "1124854320"},
+        {"num(orden)": 25, "nombres y apellidos": "KELLY JOHANA CARDENAS", "número de documento": "1075278935"},
+        {"num(orden)": 26, "nombres y apellidos": "KERLY YISETH ROJAS TAMAYO", "número de documento": "1117519855"},
+        {"num(orden)": 27, "nombres y apellidos": "LENIS MARCELY ORTEGA", "número de documento": "1122782944"},
+        {"num(orden)": 28, "nombres y apellidos": "LISNARDA CASANOVA GONZALES", "número de documento": "69006753"},
+        {"num(orden)": 29, "nombres y apellidos": "LUIS IVAN PINCHAO MIRAMA", "número de documento": "98073433"},
+        {"num(orden)": 30, "nombres y apellidos": "MARCO ANTONIO OJEDA", "número de documento": "18124235"},
+        {"num(orden)": 31, "nombres y apellidos": "MARIA DELMY CERON MUÑOZ", "número de documento": "30729659"},
+        {"num(orden)": 32, "nombres y apellidos": "MARIA YASMIN CERON", "número de documento": "36289195"},
+        {"num(orden)": 33, "nombres y apellidos": "MARINELA MARTINEZ DELGADO", "número de documento": "69011011"},
+        {"num(orden)": 34, "nombres y apellidos": "MARIO ALEXANDER ORTIZ", "número de documento": "1120217969"},
+        {"num(orden)": 35, "nombres y apellidos": "MARIZA CILENIA RIVERA ORTIZ", "número de documento": "27359375"},
+        {"num(orden)": 36, "nombres y apellidos": "MARIZA MARLENY KLINGER", "número de documento": "69008048"},
+        {"num(orden)": 37, "nombres y apellidos": "PAOLA ANDREA PALACIO LOPEZ", "número de documento": "1120217861"},
+        {"num(orden)": 38, "nombres y apellidos": "REMBERTO EVELIO CASTILLO", "número de documento": "5299371"},
+        {"num(orden)": 39, "nombres y apellidos": "RICHARD FERNEY DIAS", "número de documento": "1124855886"},
+        {"num(orden)": 40, "nombres y apellidos": "SERGIO ELIAS FAJARDO FAJARDO", "número de documento": "18124076"},
+        {"num(orden)": 41, "nombres y apellidos": "YELI MILENA RODRIGUZ CAICEDO", "número de documento": "69010346"},
+        {"num(orden)": 42, "nombres y apellidos": "ZULEDY GRANOBLE MUÑOZ", "número de documento": "1061985850"}
+    ];
+
+    const tipoHabitacion = document.getElementById('tipoHabitacion');
+    const huespedesContainer = document.getElementById('huespedesContainer');
+    const btnSubmit = document.getElementById('btnSubmit');
+    const form = document.getElementById('reservaForm');
+    const mensajeDiv = document.getElementById('mensaje');
+
+    const capacidadHabitacion = {
+        "1 Cama (Matrimonial)": 2,
+        "2 Camas": 2,
+        "3 Camas": 3,
+        "4 Camas": 4
+    };
+
+    let huespedesYaRegistrados = [];
+
+    async function cargarRegistrados() {
+        mensajeDiv.textContent = 'Sincronizando disponibilidad con la base de datos...';
+        mensajeDiv.className = '';
+        
+        try {
+            const response = await fetch(SCRIPT_URL);
+            huespedesYaRegistrados = await response.json();
+            
+            mensajeDiv.textContent = ''; 
+            actualizarDatalist(); 
+            tipoHabitacion.disabled = false;
+        } catch (error) {
+            console.error("Error al cargar registrados:", error);
+            mensajeDiv.textContent = 'Error al conectar con la base de datos.';
+            mensajeDiv.className = 'error';
+        }
+    }
+
+    function actualizarDatalist() {
+        const oldDatalist = document.getElementById('sugerenciasDeportistas');
+        if (oldDatalist) oldDatalist.remove();
+
+        const datalist = document.createElement('datalist');
+        datalist.id = 'sugerenciasDeportistas';
+        
+        deportistas.forEach(d => {
+            const nombre = d['nombres y apellidos'].toUpperCase();
+            if (!huespedesYaRegistrados.includes(nombre)) {
+                const option = document.createElement('option');
+                option.value = d['nombres y apellidos']; 
+                datalist.appendChild(option);
+            }
+        });
+        document.body.appendChild(datalist);
+    }
+
+    tipoHabitacion.addEventListener('change', (e) => {
+        huespedesContainer.innerHTML = ''; 
+        const seleccion = e.target.value;
+        
+        if (seleccion && capacidadHabitacion[seleccion]) {
+            const numPersonas = capacidadHabitacion[seleccion];
+            
+            for (let i = 1; i <= numPersonas; i++) {
+                const formGroup = document.createElement('div');
+                formGroup.className = 'form-group';
+                
+                const label = document.createElement('label');
+                label.textContent = `Huésped ${i}`;
+                
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.id = `huesped${i}`;
+                input.name = `huesped${i}`;
+                input.placeholder = "Escribe para buscar el nombre...";
+                input.required = true;
+                
+                input.setAttribute('list', 'sugerenciasDeportistas');
+                input.autocomplete = "off"; 
+                
+                // Validación para evitar duplicados sin usar "alert()"
+                input.addEventListener('blur', (evento) => {
+                    const valorEscrito = evento.target.value.toUpperCase();
+                    if (valorEscrito !== "" && huespedesYaRegistrados.includes(valorEscrito)) {
+                        // Usar el Div de mensajes en lugar de alert()
+                        mensajeDiv.textContent = `Atención: ${valorEscrito} ya tiene una habitación reservada.`;
+                        mensajeDiv.className = 'warning';
+                        evento.target.value = ""; 
+                        
+                        // Ocultar mensaje después de unos segundos
+                        setTimeout(() => {
+                            if(mensajeDiv.className === 'warning') {
+                                mensajeDiv.textContent = '';
+                                mensajeDiv.className = '';
+                            }
+                        }, 4500);
+                    }
+                });
+
+                const ayuda = document.createElement('span');
+                ayuda.className = 'ayuda';
+                ayuda.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> Selecciona un nombre de la lista.`;
+
+                formGroup.appendChild(label);
+                formGroup.appendChild(input);
+                formGroup.appendChild(ayuda);
+                huespedesContainer.appendChild(formGroup);
+            }
+            btnSubmit.classList.remove('hidden');
+        } else {
+            btnSubmit.classList.add('hidden');
+        }
+    });
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        btnSubmit.textContent = 'Procesando reserva...';
+        btnSubmit.disabled = true;
+        mensajeDiv.textContent = '';
+        mensajeDiv.className = '';
+
+        const data = {
+            tipoHabitacion: tipoHabitacion.value,
+            huesped1: document.getElementById('huesped1') ? document.getElementById('huesped1').value.toUpperCase() : '',
+            huesped2: document.getElementById('huesped2') ? document.getElementById('huesped2').value.toUpperCase() : '',
+            huesped3: document.getElementById('huesped3') ? document.getElementById('huesped3').value.toUpperCase() : '',
+            huesped4: document.getElementById('huesped4') ? document.getElementById('huesped4').value.toUpperCase() : ''
+        };
+
+        try {
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            mensajeDiv.textContent = '¡Reserva confirmada exitosamente!';
+            mensajeDiv.className = 'success';
+            
+            // ¡EFECTO CONFETI! 🎉
+            confetti({
+                particleCount: 150,
+                spread: 80,
+                origin: { y: 0.6 },
+                colors: ['#059669', '#34d399', '#fef08a', '#ffffff']
+            });
+
+            form.reset();
+            huespedesContainer.innerHTML = '';
+            btnSubmit.classList.add('hidden');
+            
+            cargarRegistrados(); 
+
+        } catch (error) {
+            mensajeDiv.textContent = 'Error de conexión. Intenta nuevamente.';
+            mensajeDiv.className = 'error';
+            console.error('Error:', error);
+        } finally {
+            btnSubmit.textContent = 'Confirmar Reserva';
+            btnSubmit.disabled = false;
+        }
+    });
+
+    // Iniciar
+    tipoHabitacion.disabled = true;
+    cargarRegistrados();
+
+</script>
+</body>
+</html>
